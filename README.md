@@ -1,7 +1,6 @@
 # DocDash
 
-A lightweight, dependency-free macOS API documentation browser in the spirit of
-[Dash](https://kapeli.com/dash): a sidebar with instant fuzzy search over installed
+A lightweight, dependency-free macOS API documentation browser: a sidebar with instant fuzzy search over installed
 docsets on the left, rendered documentation on the right. Internal use only.
 
 - **Multiple docsets, multiple versions** — e.g. Ruby 3.4 *and* Ruby 4.0 installed
