@@ -28,10 +28,10 @@ final class SearchEngine {
     }
 
     static func searchSync(query: String, docsets: [InstalledDocset], maxResults: Int = 300) -> [SearchResult] {
-        let needle = query.trimmingCharacters(in: .whitespaces).lowercased()
+        let (scoped, needle) = parseScope(query: query, docsets: docsets)
         guard !needle.isEmpty else { return [] }
         var results: [SearchResult] = []
-        for docset in docsets {
+        for docset in scoped {
             guard let entries = docset.entries else { continue }
             for entry in entries {
                 guard let score = score(entry: entry, needle: needle) else { continue }
@@ -47,6 +47,27 @@ final class SearchEngine {
             results.removeLast(results.count - maxResults)
         }
         return results
+    }
+
+    /// Supports Dash-style docset scoping: "rails:find_by" searches only docsets
+    /// whose type, identifier, or name starts with "rails" (also "ruby-3.4:map"
+    /// to pin a version). A prefix that matches no installed docset is treated
+    /// as part of the query, so "Array::new" still searches everything.
+    static func parseScope(query: String, docsets: [InstalledDocset]) -> ([InstalledDocset], String) {
+        let trimmed = query.trimmingCharacters(in: .whitespaces).lowercased()
+        guard let colon = trimmed.firstIndex(of: ":"), colon != trimmed.startIndex else {
+            return (docsets, trimmed)
+        }
+        let prefix = String(trimmed[..<colon])
+        let rest = String(trimmed[trimmed.index(after: colon)...]).trimmingCharacters(in: .whitespaces)
+        guard !prefix.contains(" "), !rest.isEmpty else { return (docsets, trimmed) }
+        let scoped = docsets.filter {
+            $0.info.type.lowercased().hasPrefix(prefix)
+                || $0.info.identifier.lowercased().hasPrefix(prefix)
+                || $0.info.name.lowercased().replacingOccurrences(of: " ", with: "").hasPrefix(prefix)
+        }
+        guard !scoped.isEmpty else { return (docsets, trimmed) }
+        return (scoped, rest)
     }
 
     /// Lower is better; nil means no match.

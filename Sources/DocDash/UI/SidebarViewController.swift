@@ -15,7 +15,7 @@ final class SidebarViewController: NSViewController,
     private enum Mode { case browse, results }
     private var mode: Mode = .browse
 
-    private let searchField = NSSearchField()
+    private var searchField: NSSearchField?
     private let tableView = NSTableView()
     private let scrollView = NSScrollView()
     private let statusLabel = NSTextField(labelWithString: "")
@@ -28,13 +28,6 @@ final class SidebarViewController: NSViewController,
         let container = NSVisualEffectView()
         container.material = .sidebar
         container.blendingMode = .behindWindow
-
-        searchField.translatesAutoresizingMaskIntoConstraints = false
-        searchField.placeholderString = "Search (⌘F)"
-        searchField.delegate = self
-        searchField.sendsSearchStringImmediately = true
-        searchField.sendsWholeSearchString = false
-        container.addSubview(searchField)
 
         tableView.headerView = nil
         tableView.rowHeight = 38
@@ -73,11 +66,7 @@ final class SidebarViewController: NSViewController,
         container.addSubview(manageButton)
 
         NSLayoutConstraint.activate([
-            searchField.topAnchor.constraint(equalTo: container.topAnchor, constant: 10),
-            searchField.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
-            searchField.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10),
-
-            scrollView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 8),
+            scrollView.topAnchor.constraint(equalTo: container.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor, constant: -4),
@@ -103,13 +92,23 @@ final class SidebarViewController: NSViewController,
         reloadBrowse()
     }
 
+    /// Adopts the window's toolbar search field (Dash-style centered search).
+    func installSearchField(_ field: NSSearchField) {
+        searchField = field
+        field.placeholderString = "Search — e.g. find_by or rails:find_by"
+        field.delegate = self
+        field.sendsSearchStringImmediately = true
+        field.sendsWholeSearchString = false
+    }
+
     func focusSearchField() {
-        view.window?.makeFirstResponder(searchField)
+        guard let searchField else { return }
+        searchField.window?.makeFirstResponder(searchField)
     }
 
     /// Programmatic search — used by the --search debug/testing launch flag.
     func performSearch(_ query: String) {
-        searchField.stringValue = query
+        searchField?.stringValue = query
         runSearch()
     }
 
@@ -151,7 +150,7 @@ final class SidebarViewController: NSViewController,
     }
 
     private func runSearch() {
-        let query = searchField.stringValue.trimmingCharacters(in: .whitespaces)
+        let query = (searchField?.stringValue ?? "").trimmingCharacters(in: .whitespaces)
         if query.isEmpty {
             mode = .browse
             results = []
@@ -186,7 +185,7 @@ final class SidebarViewController: NSViewController,
             openSelection()
             return true
         case #selector(NSResponder.cancelOperation(_:)):
-            if !searchField.stringValue.isEmpty {
+            if let searchField, !searchField.stringValue.isEmpty {
                 searchField.stringValue = ""
                 runSearch()
                 return true

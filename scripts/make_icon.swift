@@ -21,22 +21,31 @@ func drawIcon(size: Int, scale: Int, name: String) throws {
     let side = CGFloat(pixels)
     let inset = side * 0.05
     let rect = NSRect(x: inset, y: inset, width: side - 2 * inset, height: side - 2 * inset)
-    let path = NSBezierPath(roundedRect: rect, xRadius: side * 0.18, yRadius: side * 0.18)
-    let gradient = NSGradient(
-        starting: NSColor(calibratedRed: 0.16, green: 0.35, blue: 0.85, alpha: 1),
-        ending: NSColor(calibratedRed: 0.05, green: 0.15, blue: 0.45, alpha: 1)
+    let path = NSBezierPath(roundedRect: rect, xRadius: side * 0.22, yRadius: side * 0.22)
+    let gradient = NSGradient(colorsAndLocations:
+        (NSColor(calibratedRed: 0.33, green: 0.55, blue: 1.00, alpha: 1), 0.0),
+        (NSColor(calibratedRed: 0.13, green: 0.30, blue: 0.86, alpha: 1), 0.55),
+        (NSColor(calibratedRed: 0.06, green: 0.14, blue: 0.52, alpha: 1), 1.0)
     )!
     gradient.draw(in: path, angle: -90)
 
-    let text = "D{}" as NSString
-    let font = NSFont.systemFont(ofSize: side * 0.34, weight: .bold)
+    // Single prominent "D" in SF Rounded, with a soft shadow for depth.
+    let text = "D" as NSString
+    let baseFont = NSFont.systemFont(ofSize: side * 0.62, weight: .bold)
+    let font = baseFont.fontDescriptor.withDesign(.rounded)
+        .flatMap { NSFont(descriptor: $0, size: side * 0.62) } ?? baseFont
+    let shadow = NSShadow()
+    shadow.shadowColor = NSColor.black.withAlphaComponent(0.35)
+    shadow.shadowOffset = NSSize(width: 0, height: -side * 0.015)
+    shadow.shadowBlurRadius = side * 0.03
     let attributes: [NSAttributedString.Key: Any] = [
         .font: font,
         .foregroundColor: NSColor.white,
+        .shadow: shadow,
     ]
     let textSize = text.size(withAttributes: attributes)
     text.draw(
-        at: NSPoint(x: (side - textSize.width) / 2, y: (side - textSize.height) / 2),
+        at: NSPoint(x: (side - textSize.width) / 2, y: (side - textSize.height) / 2 + side * 0.01),
         withAttributes: attributes
     )
 
