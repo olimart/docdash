@@ -7,7 +7,7 @@ import WebKit
 /// navigation hamburger — the app's sidebar replaces it.
 final class ContentViewController: NSViewController, WKNavigationDelegate {
     private var webView: WKWebView!
-    private let placeholder = NSTextField(labelWithString: "Select a docset or search for a method")
+    private let placeholder = NSTextField(labelWithString: "Press ⌘L to search — install docsets via Docsets ▸ Manage Docsets…")
 
     private static let injectedCSS = """
     :root { color-scheme: light dark; }

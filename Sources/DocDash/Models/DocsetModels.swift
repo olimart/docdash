@@ -87,6 +87,17 @@ struct IndexEntry {
         }
         return nil
     }
+
+    /// The entry's own name without its container (e.g. "map" for "Array#map").
+    var shortName: String {
+        if let range = name.range(of: "#", options: .backwards) {
+            return String(name[range.upperBound...])
+        }
+        if let range = name.range(of: "::", options: .backwards) {
+            return String(name[range.upperBound...])
+        }
+        return name
+    }
 }
 
 final class InstalledDocset {

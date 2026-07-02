@@ -1,8 +1,7 @@
 import AppKit
 
-final class MainWindowController: NSWindowController, SidebarDelegate, NSToolbarDelegate {
-    private let sidebarController = SidebarViewController()
-    private let contentController = ContentViewController()
+final class MainWindowController: NSWindowController, NSToolbarDelegate, ResultsPanelDelegate {
+    private let root = RootViewController()
     private let searchItem = NSSearchToolbarItem(itemIdentifier: .docDashSearch)
 
     init() {
@@ -13,22 +12,15 @@ final class MainWindowController: NSWindowController, SidebarDelegate, NSToolbar
             defer: false
         )
         window.title = Config.appName
-        window.minSize = NSSize(width: 760, height: 420)
+        window.minSize = NSSize(width: 640, height: 420)
         window.center()
         window.setFrameAutosaveName("MainWindow")
         super.init(window: window)
 
-        let splitController = NSSplitViewController()
-        let sidebarItem = NSSplitViewItem(sidebarWithViewController: sidebarController)
-        sidebarItem.minimumThickness = 260
-        sidebarItem.maximumThickness = 420
-        sidebarItem.canCollapse = true
-        splitController.addSplitViewItem(sidebarItem)
-        splitController.addSplitViewItem(NSSplitViewItem(viewController: contentController))
-        window.contentViewController = splitController
+        window.contentViewController = root
 
         // Dash-style centered search field in the title bar.
-        searchItem.preferredWidthForSearchField = 360
+        searchItem.preferredWidthForSearchField = 420
         let toolbar = NSToolbar(identifier: "MainToolbar")
         toolbar.delegate = self
         toolbar.displayMode = .iconOnly
@@ -37,28 +29,28 @@ final class MainWindowController: NSWindowController, SidebarDelegate, NSToolbar
         window.toolbar = toolbar
         window.toolbarStyle = .unified
 
-        sidebarController.delegate = self
-        sidebarController.installSearchField(searchItem.searchField)
+        root.results.delegate = self
+        root.results.installSearchField(searchItem.searchField)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     @objc func focusSearch(_ sender: Any?) {
-        sidebarController.focusSearchField()
+        root.results.focusSearchField()
     }
 
     func performSearch(_ query: String) {
-        sidebarController.performSearch(query)
+        root.results.performSearch(query)
     }
 
     // MARK: - NSToolbarDelegate
 
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [.toggleSidebar, .flexibleSpace, .docDashSearch, .flexibleSpace]
+        [.flexibleSpace, .docDashSearch, .flexibleSpace]
     }
 
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [.toggleSidebar, .flexibleSpace, .docDashSearch]
+        [.flexibleSpace, .docDashSearch]
     }
 
     func toolbar(_ toolbar: NSToolbar,
@@ -67,17 +59,12 @@ final class MainWindowController: NSWindowController, SidebarDelegate, NSToolbar
         itemIdentifier == .docDashSearch ? searchItem : nil
     }
 
-    // MARK: - SidebarDelegate
+    // MARK: - ResultsPanelDelegate
 
-    func sidebar(_ sidebar: SidebarViewController, didSelect result: SearchResult) {
+    func resultsPanel(_ panel: ResultsPanelController, didChoose result: SearchResult, commit: Bool) {
         guard let url = result.docset.url(for: result.entry) else { return }
-        contentController.load(url: url, readAccessURL: result.docset.rootURL)
+        root.content.load(url: url, readAccessURL: result.docset.rootURL)
         window?.title = "\(result.entry.name) — \(result.docset.info.displayName)"
-    }
-
-    func sidebar(_ sidebar: SidebarViewController, didSelectDocset docset: InstalledDocset) {
-        contentController.load(url: docset.landingPageURL, readAccessURL: docset.rootURL)
-        window?.title = "\(docset.info.displayName) — \(Config.appName)"
     }
 }
 
