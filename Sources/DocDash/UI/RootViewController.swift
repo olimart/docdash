@@ -38,10 +38,11 @@ final class RootViewController: NSViewController {
             self?.backdrop.isHidden = !visible
         }
 
-        // Panel width tracks the window (with side margins) but caps at 720 and
-        // stays centered. No hard minimum here so it can never pin the window's
-        // resizable width — the window's own minSize governs that.
-        let panelWidth = results.view.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -48)
+        // Panel prefers 720pt, capped there, centered. This preference must NOT
+        // reference root.width: an equality tying panel width to root width makes
+        // Auto Layout drive the *window* to 720+margins (you could shrink but not
+        // grow). The leading/trailing margins alone shrink it on narrow windows.
+        let panelWidth = results.view.widthAnchor.constraint(equalToConstant: 720)
         panelWidth.priority = .defaultHigh
 
         NSLayoutConstraint.activate([
@@ -62,6 +63,8 @@ final class RootViewController: NSViewController {
             panelWidth,
             results.view.widthAnchor.constraint(lessThanOrEqualToConstant: 720),
         ])
+
+        root.translatesAutoresizingMaskIntoConstraints = true
 
         self.view = root
     }

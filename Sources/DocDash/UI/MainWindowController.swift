@@ -15,11 +15,13 @@ final class MainWindowController: NSWindowController, NSToolbarDelegate, Results
         window.minSize = NSSize(width: 520, height: 380)
         super.init(window: window)
 
-        // Assigning contentViewController makes AppKit resize the window to the
-        // view's fitting size; restore the intended size afterwards, then let
-        // the autosaved frame (if any) take over. Order matters here.
-        window.contentViewController = root
-        window.setContentSize(NSSize(width: 1180, height: 760))
+        // Install the root view via contentView, NOT contentViewController:
+        // assigning a contentViewController makes AppKit continuously resize the
+        // window to the view's Auto Layout fitting size, which pinned the window
+        // to a fixed width (you could shrink but not grow, and the saved frame
+        // was ignored). contentView leaves the window's frame under our control.
+        _ = root.view // force loadView so child controllers are wired up
+        window.contentView = root.view
         window.center()
         window.setFrameAutosaveName("MainWindow")
 
