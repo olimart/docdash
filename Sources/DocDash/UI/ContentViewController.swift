@@ -30,6 +30,16 @@ final class ContentViewController: NSViewController, WKNavigationDelegate {
       margin-left: 0 !important;
       border-left: 0 !important;
     }
+    /* Make the sidebar width responsive and keep the content offset by it at
+       every window width. darkfish only offsets main above 1024px, so when
+       narrow the fixed sidebar overlapped and clipped the content's left edge.
+       Redefining --sidebar-width keeps the fixed nav and the content margin in
+       lockstep, so both panes shrink together. */
+    :root { --sidebar-width: clamp(150px, 26vw, 300px) !important; }
+    /* darkfish hides the sidebar below 1024px (meant to be toggled by the
+       hamburger, which we hide); force it visible so it's a persistent pane. */
+    nav, #navigation { display: flex !important; }
+    main { margin-left: var(--sidebar-width) !important; }
     /* Active method highlight in the sidebar method lists. */
     .link-list li.docdash-active {
       background: rgba(128, 128, 128, 0.22);
