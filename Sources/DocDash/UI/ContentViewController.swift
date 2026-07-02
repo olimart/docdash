@@ -19,6 +19,23 @@ final class ContentViewController: NSViewController, WKNavigationDelegate {
     #table-of-contents-navigation,
     #search-section,
     #validator-badges { display: none !important; }
+    /* Suppress rdoc's heavy left bar on the targeted method/heading; the active
+       method is marked in the sidebar instead (Dash-style). */
+    main .method-detail:target,
+    main h1:target, main h2:target, main h3:target,
+    main h4:target, main h5:target, main h6:target,
+    .legacy-anchor:target + h1, .legacy-anchor:target + h2,
+    .legacy-anchor:target + h3, .legacy-anchor:target + h4,
+    .legacy-anchor:target + h5, .legacy-anchor:target + h6 {
+      margin-left: 0 !important;
+      border-left: 0 !important;
+    }
+    /* Active method highlight in the sidebar method lists. */
+    .link-list li.docdash-active {
+      background: rgba(128, 128, 128, 0.22);
+      border-radius: 6px;
+    }
+    .link-list li.docdash-active a { font-weight: 600; }
     @media (prefers-color-scheme: dark) {
       :root {
         --highlight-color: #ff6e63;
@@ -55,6 +72,25 @@ final class ContentViewController: NSViewController, WKNavigationDelegate {
           var style = document.createElement('style');
           style.textContent = \(Self.jsStringLiteral(Self.injectedCSS));
           document.documentElement.appendChild(style);
+
+          // Mark the sidebar method link matching the current anchor as active.
+          function mark() {
+            var hash = location.hash;
+            var links = document.querySelectorAll('.link-list a');
+            for (var i = 0; i < links.length; i++) {
+              var li = links[i].closest('li');
+              if (!li) continue;
+              if (hash && links[i].getAttribute('href') === hash) {
+                li.classList.add('docdash-active');
+                li.scrollIntoView({ block: 'nearest' });
+              } else {
+                li.classList.remove('docdash-active');
+              }
+            }
+          }
+          window.addEventListener('hashchange', mark);
+          document.addEventListener('DOMContentLoaded', mark);
+          mark();
         })();
         """
         // documentEnd so the style element lands after the page's own
