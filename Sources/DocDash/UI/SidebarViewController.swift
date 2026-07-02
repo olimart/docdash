@@ -19,6 +19,7 @@ final class SidebarViewController: NSViewController,
     private let tableView = NSTableView()
     private let scrollView = NSScrollView()
     private let statusLabel = NSTextField(labelWithString: "")
+    private let manageButton = NSButton()
     private let engine = SearchEngine()
     private var results: [SearchResult] = []
     private var browseDocsets: [InstalledDocset] = []
@@ -61,6 +62,16 @@ final class SidebarViewController: NSViewController,
         statusLabel.lineBreakMode = .byTruncatingTail
         container.addSubview(statusLabel)
 
+        // nil target: resolved via the responder chain to AppDelegate.
+        manageButton.title = "Manage Docsets…"
+        manageButton.target = nil
+        manageButton.action = #selector(AppDelegate.showManageDocsets(_:))
+        manageButton.isBordered = false
+        manageButton.contentTintColor = .controlAccentColor
+        manageButton.font = NSFont.systemFont(ofSize: 11)
+        manageButton.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(manageButton)
+
         NSLayoutConstraint.activate([
             searchField.topAnchor.constraint(equalTo: container.topAnchor, constant: 10),
             searchField.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
@@ -73,7 +84,11 @@ final class SidebarViewController: NSViewController,
 
             statusLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
             statusLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -12),
-            statusLabel.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8),
+            statusLabel.bottomAnchor.constraint(equalTo: manageButton.topAnchor, constant: -3),
+
+            manageButton.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
+            manageButton.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -12),
+            manageButton.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8),
         ])
 
         self.view = container
@@ -120,7 +135,7 @@ final class SidebarViewController: NSViewController,
         case .browse:
             let active = DocsetLibrary.shared.activeDocsets.count
             if browseDocsets.isEmpty {
-                statusLabel.stringValue = "No docsets — Docsets ▸ Manage Docsets…"
+                statusLabel.stringValue = "No docsets installed yet"
             } else {
                 statusLabel.stringValue = "\(browseDocsets.count) docsets installed, \(active) active"
             }

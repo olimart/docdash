@@ -7,7 +7,7 @@ final class MainWindowController: NSWindowController, SidebarDelegate {
     init() {
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 1180, height: 760),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
