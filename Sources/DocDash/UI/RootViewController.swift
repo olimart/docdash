@@ -38,7 +38,10 @@ final class RootViewController: NSViewController {
             self?.backdrop.isHidden = !visible
         }
 
-        let panelWidth = results.view.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -40)
+        // Panel width tracks the window (with side margins) but caps at 720 and
+        // stays centered. No hard minimum here so it can never pin the window's
+        // resizable width — the window's own minSize governs that.
+        let panelWidth = results.view.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -48)
         panelWidth.priority = .defaultHigh
 
         NSLayoutConstraint.activate([
@@ -54,9 +57,10 @@ final class RootViewController: NSViewController {
 
             results.view.topAnchor.constraint(equalTo: root.topAnchor, constant: 10),
             results.view.centerXAnchor.constraint(equalTo: root.centerXAnchor),
+            results.view.leadingAnchor.constraint(greaterThanOrEqualTo: root.leadingAnchor, constant: 24),
+            results.view.trailingAnchor.constraint(lessThanOrEqualTo: root.trailingAnchor, constant: -24),
             panelWidth,
             results.view.widthAnchor.constraint(lessThanOrEqualToConstant: 720),
-            results.view.widthAnchor.constraint(greaterThanOrEqualToConstant: 360),
         ])
 
         self.view = root

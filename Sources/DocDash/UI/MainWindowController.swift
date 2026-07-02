@@ -12,15 +12,19 @@ final class MainWindowController: NSWindowController, NSToolbarDelegate, Results
             defer: false
         )
         window.title = Config.appName
-        window.minSize = NSSize(width: 640, height: 420)
-        window.center()
-        window.setFrameAutosaveName("MainWindow")
+        window.minSize = NSSize(width: 520, height: 380)
         super.init(window: window)
 
+        // Assigning contentViewController makes AppKit resize the window to the
+        // view's fitting size; restore the intended size afterwards, then let
+        // the autosaved frame (if any) take over. Order matters here.
         window.contentViewController = root
+        window.setContentSize(NSSize(width: 1180, height: 760))
+        window.center()
+        window.setFrameAutosaveName("MainWindow")
 
         // Dash-style centered search field in the title bar.
-        searchItem.preferredWidthForSearchField = 420
+        searchItem.preferredWidthForSearchField = 360
         let toolbar = NSToolbar(identifier: "MainToolbar")
         toolbar.delegate = self
         toolbar.displayMode = .iconOnly

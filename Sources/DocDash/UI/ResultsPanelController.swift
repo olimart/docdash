@@ -25,7 +25,7 @@ final class ResultsPanelController: NSViewController,
     private var heightConstraint: NSLayoutConstraint!
 
     private let rowHeight: CGFloat = 30
-    private let headerHeight: CGFloat = 28
+    private let headerHeight: CGFloat = 38
     private let maxVisibleRows = 10
 
     override func loadView() {
@@ -253,9 +253,14 @@ final class ResultsPanelController: NSViewController,
         cell.addSubview(kindBadge)
 
         let name = NSTextField(labelWithAttributedString: highlightedName(result.entry))
+        name.usesSingleLineMode = true
+        name.maximumNumberOfLines = 1
         name.lineBreakMode = .byTruncatingTail
+        name.cell?.truncatesLastVisibleLine = true
         name.setContentHuggingPriority(.required, for: .horizontal)
-        name.setContentCompressionResistancePriority(.required, for: .horizontal)
+        // Prefer keeping the name over the source, but truncate rather than wrap
+        // when the panel is very narrow.
+        name.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         name.translatesAutoresizingMaskIntoConstraints = false
         cell.addSubview(name)
 
@@ -291,11 +296,14 @@ final class ResultsPanelController: NSViewController,
     /// Renders the short name, tinting the matched substring like Dash.
     private func highlightedName(_ entry: IndexEntry) -> NSAttributedString {
         let shortName = entry.shortName
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineBreakMode = .byTruncatingTail
         let attributed = NSMutableAttributedString(
             string: shortName,
             attributes: [
                 .font: NSFont.systemFont(ofSize: 13, weight: .medium),
                 .foregroundColor: NSColor.labelColor,
+                .paragraphStyle: paragraph,
             ]
         )
         if !highlightNeedle.isEmpty,
