@@ -11,7 +11,14 @@ final class ContentViewController: NSViewController, WKNavigationDelegate {
 
     private static let injectedCSS = """
     :root { color-scheme: light dark; }
-    #navigation-toggle { display: none !important; }
+    /* Strip rdoc's global chrome so only the class's own method navigation and
+       the documentation content remain (Dash-style). The method-list sections
+       and main content are left intact. */
+    #navigation-toggle,
+    #home-section,
+    #table-of-contents-navigation,
+    #search-section,
+    #validator-badges { display: none !important; }
     @media (prefers-color-scheme: dark) {
       :root {
         --highlight-color: #ff6e63;

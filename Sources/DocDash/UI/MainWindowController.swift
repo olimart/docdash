@@ -45,8 +45,8 @@ final class MainWindowController: NSWindowController, NSToolbarDelegate, Results
         root.results.focusSearchField()
     }
 
-    func performSearch(_ query: String) {
-        root.results.performSearch(query)
+    func performSearch(_ query: String, openFirst: Bool = false) {
+        root.results.performSearch(query, openFirst: openFirst)
     }
 
     // MARK: - NSToolbarDelegate

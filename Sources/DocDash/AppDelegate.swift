@@ -15,8 +15,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let arguments = CommandLine.arguments
         if let index = arguments.firstIndex(of: "--search"), index + 1 < arguments.count {
             let query = arguments[index + 1]
+            let openFirst = arguments.contains("--open-first")
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak controller] in
-                controller?.performSearch(query)
+                controller?.performSearch(query, openFirst: openFirst)
             }
         }
     }

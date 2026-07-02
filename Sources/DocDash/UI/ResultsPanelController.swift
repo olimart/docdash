@@ -117,7 +117,10 @@ final class ResultsPanelController: NSViewController,
         searchField.window?.makeFirstResponder(searchField)
     }
 
-    func performSearch(_ query: String) {
+    private var pendingOpenFirst = false
+
+    func performSearch(_ query: String, openFirst: Bool = false) {
+        pendingOpenFirst = openFirst
         searchField?.stringValue = query
         runSearch()
     }
@@ -164,6 +167,10 @@ final class ResultsPanelController: NSViewController,
                 self.tableView.scrollRowToVisible(0)
             }
             self.setVisible(true)
+            if self.pendingOpenFirst {
+                self.pendingOpenFirst = false
+                self.choose(row: 0, commit: true)
+            }
         }
     }
 
