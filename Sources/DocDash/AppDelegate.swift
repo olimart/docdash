@@ -11,6 +11,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mainWindowController = controller
         controller.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
+
+        let arguments = CommandLine.arguments
+        if let index = arguments.firstIndex(of: "--search"), index + 1 < arguments.count {
+            let query = arguments[index + 1]
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak controller] in
+                controller?.performSearch(query)
+            }
+        }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }

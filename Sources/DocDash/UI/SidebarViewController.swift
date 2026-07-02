@@ -92,6 +92,12 @@ final class SidebarViewController: NSViewController,
         view.window?.makeFirstResponder(searchField)
     }
 
+    /// Programmatic search — used by the --search debug/testing launch flag.
+    func performSearch(_ query: String) {
+        searchField.stringValue = query
+        runSearch()
+    }
+
     // MARK: - Library
 
     @objc private func libraryChanged() {

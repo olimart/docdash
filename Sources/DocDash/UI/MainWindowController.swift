@@ -36,6 +36,10 @@ final class MainWindowController: NSWindowController, SidebarDelegate {
         sidebarController.focusSearchField()
     }
 
+    func performSearch(_ query: String) {
+        sidebarController.performSearch(query)
+    }
+
     // MARK: - SidebarDelegate
 
     func sidebar(_ sidebar: SidebarViewController, didSelect result: SearchResult) {
